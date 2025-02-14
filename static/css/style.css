@@ -1,0 +1,56 @@
+/* F8B195   F67280   C06C84   6C5B7B   355C7D  11212d*/
+
+body { 
+    font-family: Ubuntu, Arial, sans-serif; 
+    text-align: center; 
+    background-color: #11212d !important;
+    height: 100%;
+}
+
+.currentTemp {
+    height: 20%;
+    font-size: 60px;
+    text-align: center;
+    background-color: #6C5B7B;
+    color: #11212d;
+}
+#currentStoveTemp {
+    display: inline;
+    width: 80%;
+}
+
+#temperatureChart {
+    width: 80%;
+    height: 80%;
+}
+
+.system-temps {
+    height: 20%;
+    font-size: 30px;
+    text-align: center;
+    background-color: #6C5B7B;
+    color: #11212d;
+    padding: 10px;
+}
+
+.system-temps div {
+    display: inline-block;
+    margin: 0 20px;
+}
+
+.canvasContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+canvas { 
+    margin: auto; 
+    width: 100%;
+    height: 100%;
+    background-color: #355C7D;
+}
+
+#nest-temps {
+    display: inline-block;
+    margin: 0 20px;
+}
