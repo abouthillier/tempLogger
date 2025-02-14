@@ -24,10 +24,7 @@ max = adafruit_max31855.MAX31855(spi, cs)
 #     try:
 #         # Move these to environment variables or config file for security
 #         projectID = 'templog-450802'
-#         oauth2_client_id = '761748715430-hq015v4quo94cbiqphr3u6abrc5attdv.apps.googleusercontent.com'    
-#         oauth2_client_secret = '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'
 #         # You'll need to generate a new refresh token
-#         refreshToken = '1//01U413t74wj9nCgYIARAAGAESNwF-L9Ir51AnYdpfRcfarEsMaqJFN8roF5MOYQ3R7I3sDdbdl0TaTANIq6jKJPriCPmp1Bn6MQ'
 
 #         # Get new access token
 #         get_access_token_url = "https://oauth2.googleapis.com/token"  # Updated URL
