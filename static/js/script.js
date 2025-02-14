@@ -6,21 +6,21 @@ const App = {
         // title: 'Temperature Over Time',
         curveType: 'function',
         legend: { position: 'bottom' },
-        colors: ['#C06C84', '#8E44AD'],
-        backgroundColor: '#11212d',
+        colors: ['#3b82f6', '#475569'],  // blue-500, slate-600
+        backgroundColor: '#0f172a',       // slate-900
         chartArea: {
-            width: '80%',
+            width: '90%',
             height: '80%'
         },
         hAxis: {
             title: 'Most Recent Hour Of Data',
-            titleTextStyle: { color: '#F67280' },
-            textStyle: { color: '#F67280' }
+            titleTextStyle: { color: '#94a3b8' },  // slate-400
+            textStyle: { color: '#94a3b8' }        // slate-400
         },
         vAxis: {
             // title: 'Temperature (°F)',
-            titleTextStyle: { color: '#F67280' },
-            textStyle: { color: '#F67280' },
+            titleTextStyle: { color: '#94a3b8' },  // slate-400
+            textStyle: { color: '#94a3b8' },       // slate-400
             viewWindow: {
                 min: 0,
                 max: 800
@@ -111,8 +111,8 @@ const App = {
             const gpuTempElement = document.getElementById('gpu-temp');
             
             if (cpuTempElement && gpuTempElement) {
-                cpuTempElement.innerText = sysTemps.cpu_temp;
-                gpuTempElement.innerText = sysTemps.gpu_temp;
+                cpuTempElement.innerText = Math.round(sysTemps.cpu_temp);
+                gpuTempElement.innerText = Math.round(sysTemps.gpu_temp);
             }
 
             // Update chart with validated data
@@ -163,29 +163,22 @@ const App = {
 
         const chartData = filteredData.map(entry => [
             entry.timestamp.split(" ")[1].slice(0, 5),
-            parseFloat(entry.temperature),  // First series: actual temperature
-            null  // Second series: will be used for trendline calculation
+            parseFloat(entry.temperature),
+            null
         ]);
 
         const recentTemps = filteredData.map(entry => entry.temperature);
         const latestTemp = recentTemps[recentTemps.length - 1];
         
         const tempTrending = this.getTempTrend(recentTemps);
-        const trendIcon = tempTrending > 0 ? 'bi-arrow-up' : 'bi-arrow-down';
-
-        document.getElementById('currentStoveTemp').textContent = `Current Temp: ${Math.floor(latestTemp)}F `;
-        document.getElementById('currentStoveTemp_icon').className = 'bi ' + trendIcon;
+        
+        // Update temperature display and icon
+        document.getElementById('currentStoveTemp').textContent = `${Math.floor(latestTemp)}°F`;
+        document.getElementById('temp-up-icon').classList.toggle('hidden', tempTrending <= 0);
+        document.getElementById('temp-down-icon').classList.toggle('hidden', tempTrending > 0);
 
         this.$dataTable.removeRows(0, this.$dataTable.getNumberOfRows());
         this.$dataTable.addRows(chartData);
-        
-        // const minTemp = this.determineBounds(data).min;
-        // const maxTemp = this.determineBounds(data).max;
-
-        // this.$chart.setOption('vAxis.viewWindow', {
-        //     min: minTemp,
-        //     max: maxTemp
-        // });
         
         this.$chart.draw(this.$dataTable, this.$options);
     },
