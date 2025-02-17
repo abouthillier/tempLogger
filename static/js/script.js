@@ -13,9 +13,9 @@ const App = {
             height: '80%'
         },
         hAxis: {
-            title: 'Most Recent Hour Of Data',
-            titleTextStyle: { color: '#94a3b8' },  // slate-400
-            textStyle: { color: '#94a3b8' }        // slate-400
+            // title: 'Most Recent Hour Of Data',
+            // titleTextStyle: { color: '#94a3b8' },  // slate-400
+            // textStyle: { color: '#94a3b8' }        // slate-400
         },
         vAxis: {
             textStyle: { color: '#94a3b8' },  // slate-400
@@ -113,6 +113,16 @@ const App = {
                 gpuTempElement.innerText = Math.round(sysTemps.gpu_temp);
             }
 
+            const recentTemps = data.map(entry => entry.temperature);
+            const latestTemp = recentTemps[recentTemps.length - 1];
+            
+            const tempTrending = this.getTempTrend(recentTemps);
+            
+            // Update temperature display and icon
+            document.getElementById('currentStoveTemp').textContent = Math.floor(latestTemp);
+            document.getElementById('temp-up-icon').classList.toggle('hidden', tempTrending <= 0);
+            document.getElementById('temp-down-icon').classList.toggle('hidden', tempTrending > 0);
+    
             // Update chart with validated data
             this.updateChart(data);
 
@@ -146,9 +156,10 @@ const App = {
     },
 
     determineBounds(data) {
-        const recentTemps = data.slice(-100);
-        const minTemp = Math.min(...recentTemps);
-        const maxTemp = Math.max(...recentTemps);
+
+        const temps = data.map(entry => entry.temperature);
+        const minTemp = Math.min(...temps);
+        const maxTemp = Math.max(...temps);
         this.$options.vAxis.viewWindow.min = minTemp;
         this.$options.vAxis.viewWindow.max = maxTemp;
     },
@@ -165,7 +176,7 @@ const App = {
         const chartData = filteredData.map(entry => {
             const time = entry.timestamp.split(" ")[1].slice(0, 5);
             const temp = parseFloat(entry.temperature);
-            const minutesSinceStart = (new Date(entry.timestamp.replace(" ", "T")).getTime() - startTime) / (1000 * 60);
+            const minutesSinceStart = ((new Date(entry.timestamp.replace(" ", "T")).getTime() - startTime) / (1000 * 60)) - 60;
             return [minutesSinceStart, temp];
         });
 
@@ -175,7 +186,7 @@ const App = {
         this.$dataTable.addColumn('number', 'Temperature');
         this.$dataTable.addRows(chartData);
 
-        this.determineBounds(chartData);
+        this.determineBounds(filteredData);
 
         // Format the axis to show time labels
         const formatter = new google.visualization.NumberFormat({pattern: '#.#'});
