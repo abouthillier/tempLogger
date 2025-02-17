@@ -5,8 +5,8 @@ const App = {
     $options: {
         // title: 'Temperature Over Time',
         curveType: 'function',
-        legend: { position: 'bottom' },
-        colors: ['#3b82f6', '#475569'],  // blue-500, slate-600
+        legend: 'none',
+        colors: ['#3b82f6'],
         backgroundColor: '#0f172a',       // slate-900
         chartArea: {
             width: '90%',
@@ -18,28 +18,27 @@ const App = {
             textStyle: { color: '#94a3b8' }        // slate-400
         },
         vAxis: {
-            // title: 'Temperature (°F)',
-            titleTextStyle: { color: '#94a3b8' },  // slate-400
-            textStyle: { color: '#94a3b8' },       // slate-400
+            textStyle: { color: '#94a3b8' },  // slate-400
             viewWindow: {
                 min: 0,
                 max: 800
             }
         },
-        trendlines: {
+        series: {
             0: {
-                type: 'linear',
-                // // degree: 3,
-                // opacity: 1,
-                // lineWidth: 3,
-                // color: '#8E44AD'
+                // Main series configuration
+                color: '#3b82f6'
             }
         },
-        explorer: {
-            actions: ['dragToZoom', 'rightClickToReset'],
-            axis: 'horizontal',
-            keepInBounds: true,
-            maxZoomIn: 4.0
+        trendlines: {
+            0: {
+                type: 'polynomial',
+                degree: 5,
+                opacity: 0.8,
+                lineWidth: 5,
+                labelInLegend: 'Trend',
+                color: '#FFD22F' // amber-300
+            }
         }
     },
     $dataTable: null,
@@ -54,7 +53,6 @@ const App = {
         this.$dataTable = new google.visualization.DataTable();
         this.$dataTable.addColumn('string', 'Time');
         this.$dataTable.addColumn('number', 'Temperature');
-        this.$dataTable.addColumn('number', 'Trend');
 
         this.$chart = new google.visualization.LineChart(document.getElementById('temperatureChart'));
         
@@ -148,10 +146,11 @@ const App = {
     },
 
     determineBounds(data) {
-        const recentTemps = data.slice(-150);
+        const recentTemps = data.slice(-100);
         const minTemp = Math.min(...recentTemps);
         const maxTemp = Math.max(...recentTemps);
-        return { min: minTemp, max: maxTemp };
+        this.$options.vAxis.viewWindow.min = minTemp;
+        this.$options.vAxis.viewWindow.max = maxTemp;
     },
 
     updateChart(data) {
@@ -161,25 +160,27 @@ const App = {
         const filteredData = data
             .filter(entry => new Date(entry.timestamp.replace(" ", "T")) >= oneHourAgo);
 
-        const chartData = filteredData.map(entry => [
-            entry.timestamp.split(" ")[1].slice(0, 5),
-            parseFloat(entry.temperature),
-            null
-        ]);
+        // Convert timestamps to numbers (minutes since start) for better trendline calculation
+        const startTime = new Date(filteredData[0].timestamp.replace(" ", "T")).getTime();
+        const chartData = filteredData.map(entry => {
+            const time = entry.timestamp.split(" ")[1].slice(0, 5);
+            const temp = parseFloat(entry.temperature);
+            const minutesSinceStart = (new Date(entry.timestamp.replace(" ", "T")).getTime() - startTime) / (1000 * 60);
+            return [minutesSinceStart, temp];
+        });
 
-        const recentTemps = filteredData.map(entry => entry.temperature);
-        const latestTemp = recentTemps[recentTemps.length - 1];
-        
-        const tempTrending = this.getTempTrend(recentTemps);
-        
-        // Update temperature display and icon
-        document.getElementById('currentStoveTemp').textContent = `${Math.floor(latestTemp)}°F`;
-        document.getElementById('temp-up-icon').classList.toggle('hidden', tempTrending <= 0);
-        document.getElementById('temp-down-icon').classList.toggle('hidden', tempTrending > 0);
-
-        this.$dataTable.removeRows(0, this.$dataTable.getNumberOfRows());
+        // Update DataTable with numeric X values
+        this.$dataTable = new google.visualization.DataTable();
+        this.$dataTable.addColumn('number', 'Minutes');  // Changed to number type
+        this.$dataTable.addColumn('number', 'Temperature');
         this.$dataTable.addRows(chartData);
-        
+
+        this.determineBounds(chartData);
+
+        // Format the axis to show time labels
+        const formatter = new google.visualization.NumberFormat({pattern: '#.#'});
+        formatter.format(this.$dataTable, 0);
+
         this.$chart.draw(this.$dataTable, this.$options);
     },
 }

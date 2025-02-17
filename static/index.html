@@ -6,14 +6,15 @@
     <title>Temperature Chart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="static/js/tailwind.config.js"></script>
 </head>
 <body class="bg-slate-900 min-h-screen font-sans antialiased" onload="App.init()">
     <!-- Header Section -->
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
         <div class="space-y-4">
             <div class="text-white text-5xl font-extrabold tracking-tight flex items-center justify-center gap-2">
+                <h1>Current Stove Temp: </h1> 
                 <span id="currentStoveTemp" class="inline"></span>
+                <span>°F</span>
                 <!-- Up Arrow -->
                 <svg id="temp-up-icon" class="w-8 h-8 hidden" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
